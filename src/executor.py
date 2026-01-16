@@ -25,8 +25,11 @@ TERMINAL_STATES = {
 
 
 class Executor(AgentExecutor):
-    def __init__(self):
-        self.agents: dict[str, Agent] = {} # context_id to agent instance
+    def __init__(self, api_key: str, base_url: str, model: str):
+        self.agents: dict[str, Agent] = {}
+        self.api_key = api_key
+        self.base_url = base_url
+        self.model = model
 
     async def execute(self, context: RequestContext, event_queue: EventQueue) -> None:
         msg = context.message
@@ -44,7 +47,7 @@ class Executor(AgentExecutor):
         context_id = task.context_id
         agent = self.agents.get(context_id)
         if not agent:
-            agent = Agent()
+            agent = Agent(self.api_key, self.base_url, self.model)
             self.agents[context_id] = agent
 
         updater = TaskUpdater(event_queue, task.id, context_id)
